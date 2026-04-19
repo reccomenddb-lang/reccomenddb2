@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Recommend DB — ビジネス・資産運用・旅行・子育て。本当に価値ある情報だけを厳選してお届けするキュレーションメディア。">
+<meta property="og:title" content="Recommend DB">
+<meta property="og:description" content="本当に価値ある情報だけを厳選してお届けするキュレーションメディア">
+<meta property="og:type" content="website">
+<title>Recommend DB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:       #080808;
+  --bg2:      #0f0f0f;
+  --bg3:      #161616;
+  --bg4:      #1e1e1e;
+  --line:     rgba(255,255,255,0.07);
+  --line2:    rgba(255,255,255,0.12);
+  --text:     #e8e6e0;
+  --text2:    #888884;
+  --text3:    #555552;
+  --accent:   #c8f064;
+  --accent2:  #a8d044;
+  --serif:    'DM Serif Display', Georgia, serif;
+  --sans:     'DM Sans', sans-serif;
+  --mono:     'Space Mono', monospace;
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.7;
+  overflow-x: hidden;
+  cursor: none;
+}
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+
+/* ── Custom cursor ── */
+#cursor {
+  position: fixed; top: 0; left: 0; z-index: 9999;
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
+}
+#cursor-ring {
+  position: fixed; top: 0; left: 0; z-index: 9998;
+  width: 32px; height: 32px;
+  border: 1px solid rgba(200,240,100,0.4);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: transform 0.15s ease, width 0.3s, height 0.3s, border-color 0.3s;
+}
+body:has(a:hover) #cursor, body:has(button:hover) #cursor { width: 14px; height: 14px; }
+body:has(a:hover) #cursor-ring, body:has(button:hover) #cursor-ring { width: 48px; height: 48px; border-color: rgba(200,240,100,0.7); }
+
+/* ── Noise overlay ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 9990;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 128px 128px;
+}
+
+/* ── Navigation ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px;
+  height: 64px;
+  background: rgba(8,8,8,0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--line);
+}
+.nav-logo {
+  font-family: var(--serif);
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.nav-logo span { color: var(--accent); }
+.nav-links {
+  display: flex; gap: 32px; align-items: center;
+}
+.nav-links a {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text2);
+  transition: color 0.2s;
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute; bottom: -4px; left: 0; right: 0;
+  height: 1px; background: var(--accent);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.25s ease;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-links a:hover::after { transform: scaleX(1); }
+.nav-note {
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.08em;
+  padding: 7px 18px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 2px;
+  transition: background 0.2s, color 0.2s;
+}
+.nav-note:hover { background: var(--accent); color: #080808 !important; }
+
+/* ── Hero ── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 0 40px 80px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 100%);
+}
+.hero-glow {
+  position: absolute; top: -20%; left: 50%;
+  transform: translateX(-50%);
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(200,240,100,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.2s forwards;
+}
+.hero-eyebrow span {
+  display: inline-block;
+  width: 28px; height: 1px;
+  background: var(--accent);
+  vertical-align: middle;
+  margin-right: 12px;
+}
+.hero-headline {
+  font-family: var(--serif);
+  font-size: clamp(48px, 8vw, 96px);
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  max-width: 800px;
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: fadeUp 0.9s 0.35s forwards;
+}
+.hero-headline em {
+  font-style: italic;
+  color: var(--accent);
+}
+.hero-sub {
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--text2);
+  max-width: 460px;
+  line-height: 1.8;
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: fadeUp 0.9s 0.5s forwards;
+}
+.hero-actions {
+  display: flex; align-items: center; gap: 24px;
+  opacity: 0;
+  animation: fadeUp 0.9s 0.65s forwards;
+}
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 32px;
+  background: var(--accent);
+  color: #080808;
+  font-size: 13px; font-weight: 500;
+  letter-spacing: 0.06em;
+  border-radius: 2px;
+  transition: background 0.2s, transform 0.15s;
+}
+.btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+.btn-primary svg { width: 14px; height: 14px; }
+.btn-ghost {
+  font-size: 13px;
+  color: var(--text2);
+  letter-spacing: 0.06em;
+  display: flex; align-items: center; gap: 8px;
+  transition: color 0.2s;
+}
+.btn-ghost:hover { color: var(--text); }
+.hero-scroll {
+  position: absolute; bottom: 40px; right: 40px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  opacity: 0;
+  animation: fadeIn 1s 1.2s forwards;
+}
+.hero-scroll-line {
+  width: 1px; height: 56px;
+  background: linear-gradient(to bottom, transparent, var(--accent));
+  animation: scrollPulse 2s infinite;
+}
+.hero-scroll-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--text3);
+  writing-mode: vertical-rl;
+}
+
+/* ── Category strip ── */
+.cat-strip {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 0 40px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.cat-strip::-webkit-scrollbar { display: none; }
+.cat-inner {
+  display: flex; gap: 0;
+  min-width: max-content;
+}
+.cat-btn {
+  padding: 16px 28px;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  background: none; border: none;
+  border-right: 1px solid var(--line);
+  cursor: none;
+  transition: color 0.2s, background 0.2s;
+  white-space: nowrap;
+}
+.cat-btn:hover { color: var(--text); background: var(--bg3); }
+.cat-btn.active { color: var(--accent); }
+.cat-btn .cat-count {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text3);
+  margin-left: 6px;
+}
+.cat-btn.active .cat-count { color: var(--accent); opacity: 0.6; }
+
+/* ── Articles section ── */
+.section {
+  padding: 80px 40px;
+}
+.section-header {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 48px;
+}
+.section-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.section-title {
+  font-family: var(--serif);
+  font-size: 32px;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.section-link {
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  display: flex; align-items: center; gap: 8px;
+  transition: color 0.2s;
+}
+.section-link:hover { color: var(--accent); }
+.section-link::after {
+  content: '→';
+  transition: transform 0.2s;
+}
+.section-link:hover::after { transform: translateX(4px); }
+
+/* ── Article grid ── */
+.articles-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+.article-card {
+  background: var(--bg);
+  padding: 32px;
+  transition: background 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+.article-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.3s ease;
+}
+.article-card:hover { background: var(--bg3); }
+.article-card:hover::before { transform: scaleX(1); }
+.article-card.featured { grid-column: span 7; }
+.article-card.sub { grid-column: span 5; }
+.article-card.third { grid-column: span 4; }
+.article-card.half { grid-column: span 6; }
+
+.card-cat {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 1px;
+  margin-bottom: 16px;
+}
+.cat-biz { background: rgba(200,240,100,0.1); color: var(--accent); }
+.cat-money { background: rgba(100,180,240,0.1); color: #64b4f0; }
+.cat-travel { background: rgba(240,160,100,0.1); color: #f0a064; }
+.cat-family { background: rgba(200,100,240,0.1); color: #c864f0; }
+.cat-life { background: rgba(100,240,180,0.1); color: #64f0b4; }
+
+.card-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.article-card.featured .card-title { font-size: 30px; }
+.card-desc {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--text2);
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+.card-meta {
+  display: flex; align-items: center; gap: 16px;
+}
+.card-date {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+}
+.card-readtime {
+  font-size: 11px;
+  color: var(--text3);
+}
+.card-arrow {
+  margin-left: auto;
+  width: 32px; height: 32px;
+  border: 1px solid var(--line2);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text3);
+  font-size: 14px;
+  transition: border-color 0.2s, color 0.2s, transform 0.2s;
+}
+.article-card:hover .card-arrow {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: rotate(45deg);
+}
+.card-number {
+  position: absolute; top: 28px; right: 28px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--line2);
+}
+
+/* ── Feature banner ── */
+.feature-banner {
+  margin: 0 40px;
+  padding: 64px;
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  position: relative;
+  overflow: hidden;
+}
+.feature-banner::after {
+  content: '"';
+  position: absolute; top: -20px; right: 40px;
+  font-family: var(--serif);
+  font-size: 200px;
+  color: var(--accent);
+  opacity: 0.04;
+  line-height: 1;
+  pointer-events: none;
+}
+.fb-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 12px;
+}
+.fb-label::before {
+  content: '';
+  display: inline-block;
+  width: 20px; height: 1px;
+  background: var(--accent);
+}
+.fb-text {
+  font-family: var(--serif);
+  font-size: clamp(24px, 4vw, 40px);
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  max-width: 700px;
+  margin-bottom: 32px;
+}
+.fb-text em { font-style: italic; color: var(--accent); }
+.fb-author {
+  font-size: 13px;
+  color: var(--text2);
+  display: flex; align-items: center; gap: 16px;
+}
+.fb-author::before {
+  content: '';
+  display: inline-block;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--bg4);
+  border: 1px solid var(--line2);
+}
+
+/* ── Categories showcase ── */
+.cats-showcase {
+  padding: 80px 40px;
+  border-top: 1px solid var(--line);
+}
+.cats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  margin-top: 48px;
+}
+.cat-card {
+  background: var(--bg);
+  padding: 40px 28px;
+  transition: background 0.25s;
+  cursor: none;
+}
+.cat-card:hover { background: var(--bg3); }
+.cat-icon {
+  width: 40px; height: 40px;
+  margin-bottom: 20px;
+  display: flex; align-items: center; justify-content: center;
+}
+.cat-icon svg { width: 24px; height: 24px; }
+.cat-name {
+  font-family: var(--serif);
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.cat-desc {
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--text2);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+.cat-count-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+}
+
+/* ── About strip ── */
+.about-strip {
+  padding: 80px 40px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.about-left .section-label { margin-bottom: 16px; }
+.about-title {
+  font-family: var(--serif);
+  font-size: clamp(32px, 4vw, 52px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+.about-title em { font-style: italic; color: var(--accent); }
+.about-body {
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--text2);
+  line-height: 1.9;
+  margin-bottom: 36px;
+}
+.about-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  border-top: 1px solid var(--line);
+  padding-top: 32px;
+}
+.stat-num {
+  font-family: var(--serif);
+  font-size: 36px;
+  color: var(--accent);
+  letter-spacing: -0.03em;
+  margin-bottom: 4px;
+}
+.stat-label {
+  font-size: 12px;
+  color: var(--text3);
+  font-weight: 300;
+}
+.about-right {
+  position: relative;
+}
+.about-quote {
+  padding: 40px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  background: var(--bg2);
+}
+.about-quote p {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+.about-quote-author {
+  font-size: 12px;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.about-creds {
+  margin-top: 24px;
+  display: grid; gap: 12px;
+}
+.cred-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  font-size: 13px;
+  color: var(--text2);
+}
+.cred-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-top: 7px;
+  flex-shrink: 0;
+}
+
+/* ── Note CTA ── */
+.note-cta {
+  margin: 0 40px 80px;
+  padding: 56px 64px;
+  border: 1px solid var(--line);
+  background: var(--bg2);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 40px;
+}
+.cta-left {}
+.cta-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.cta-title {
+  font-family: var(--serif);
+  font-size: 32px;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+.cta-body {
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--text2);
+}
+.cta-right { flex-shrink: 0; }
+.btn-note {
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 16px 36px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 13px; font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--accent);
+  border-radius: 2px;
+  transition: background 0.2s, color 0.2s;
+}
+.btn-note:hover { background: var(--accent); color: #080808; }
+
+/* ── Footer ── */
+footer {
+  border-top: 1px solid var(--line);
+  padding: 48px 40px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-logo {
+  font-family: var(--serif);
+  font-size: 20px;
+  color: var(--text);
+}
+.footer-logo span { color: var(--accent); }
+.footer-links {
+  display: flex; gap: 28px;
+}
+.footer-links a {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--text); }
+.footer-copy {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+}
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  nav { padding: 0 24px; }
+  .hero { padding: 0 24px 64px; }
+  .section { padding: 60px 24px; }
+  .cats-grid { grid-template-columns: repeat(3, 1fr); }
+  .about-strip { grid-template-columns: 1fr; gap: 48px; padding: 60px 24px; }
+  .note-cta { margin: 0 24px 60px; padding: 40px; flex-direction: column; }
+  footer { padding: 40px 24px; flex-direction: column; gap: 24px; text-align: center; }
+  .cat-strip { padding: 0 24px; }
+  .feature-banner { margin: 0 24px; padding: 40px; }
+}
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .article-card.featured, .article-card.sub, .article-card.third, .article-card.half {
+    grid-column: span 12;
+  }
+  .articles-grid { grid-template-columns: 1fr; }
+  .cats-grid { grid-template-columns: repeat(2, 1fr); }
+  .about-stats { grid-template-columns: repeat(2, 1fr); }
+  #cursor, #cursor-ring { display: none; }
+  body { cursor: auto; }
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- Navigation -->
+<nav>
+  <a href="#" class="nav-logo">Recommend<span>.</span>DB</a>
+  <div class="nav-links">
+    <a href="#articles">記事</a>
+    <a href="#categories">カテゴリ</a>
+    <a href="#about">このサイトについて</a>
+    <a href="https://note.com/" target="_blank" class="nav-note">note で読む →</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-eyebrow">
+    <span></span>Curated Information Media
+  </div>
+  <h1 class="hero-headline">
+    本当に使える情報を、<br><em>厳選して届ける</em>。
+  </h1>
+  <p class="hero-sub">
+    ビジネス・資産運用・旅行・子育て——<br>
+    ノイズを排除し、価値ある情報だけを集めた<br>
+    キュレーションメディアです。
+  </p>
+  <div class="hero-actions">
+    <a href="#articles" class="btn-primary">
+      記事を読む
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M3 8h10M9 4l4 4-4 4"/>
+      </svg>
+    </a>
+    <a href="#about" class="btn-ghost">このサイトについて →</a>
+  </div>
+  <div class="hero-scroll">
+    <div class="hero-scroll-line"></div>
+    <div class="hero-scroll-label">scroll</div>
+  </div>
+</section>
+
+<!-- Category strip -->
+<div class="cat-strip" id="categories">
+  <div class="cat-inner">
+    <button class="cat-btn active" data-cat="all">All <span class="cat-count">—</span></button>
+    <button class="cat-btn" data-cat="biz">ビジネス <span class="cat-count">—</span></button>
+    <button class="cat-btn" data-cat="money">資産運用 <span class="cat-count">—</span></button>
+    <button class="cat-btn" data-cat="travel">旅行 <span class="cat-count">—</span></button>
+    <button class="cat-btn" data-cat="family">子育て <span class="cat-count">—</span></button>
+    <button class="cat-btn" data-cat="life">ライフスタイル <span class="cat-count">—</span></button>
+  </div>
+</div>
+
+<!-- Articles -->
+<section class="section" id="articles">
+  <div class="section-header reveal">
+    <div>
+      <div class="section-label">Latest</div>
+      <h2 class="section-title">最新の記事</h2>
+    </div>
+    <a href="https://note.com/" target="_blank" class="section-link">すべての記事</a>
+  </div>
+
+  <div class="articles-grid">
+    <!-- Featured -->
+    <article class="article-card featured" data-cat="biz">
+      <span class="card-number">01</span>
+      <div class="card-cat cat-biz">Business</div>
+      <h3 class="card-title">2026年、結果を出すビジネスパーソンが実践している思考習慣10選</h3>
+      <p class="card-desc">情報過多の時代に、本当に成果につながる思考とは何か。世界トップクラスの経営者・起業家の行動パターンを分析し、今日から取り入れられる習慣に落とし込みました。</p>
+      <div class="card-meta">
+        <span class="card-date">2026.04.15</span>
+        <span class="card-readtime">読了 8分</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </article>
+    <article class="article-card sub" data-cat="money">
+      <span class="card-number">02</span>
+      <div class="card-cat cat-money">資産運用</div>
+      <h3 class="card-title">新NISA完全活用ガイド 2026年版</h3>
+      <p class="card-desc">制度改正後の新NISAを最大限活かすための戦略を、初心者から中級者まで分かりやすく解説します。</p>
+      <div class="card-meta">
+        <span class="card-date">2026.04.10</span>
+        <span class="card-readtime">読了 12分</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </article>
+
+    <!-- Row 2 -->
+    <article class="article-card third" data-cat="travel">
+      <span class="card-number">03</span>
+      <div class="card-cat cat-travel">旅行</div>
+      <h3 class="card-title">大阪から3時間以内。非日常を味わえる穴場リゾート7選</h3>
+      <div class="card-meta">
+        <span class="card-date">2026.04.05</span>
+        <span class="card-readtime">読了 6分</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </article>
+    <article class="article-card third" data-cat="family">
+      <span class="card-number">04</span>
+      <div class="card-cat cat-family">子育て</div>
+      <h3 class="card-title">子育て世代の資産形成——「時間がない」を言い訳にしない方法</h3>
+      <div class="card-meta">
+        <span class="card-date">2026.03.28</span>
+        <span class="card-readtime">読了 7分</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </article>
+    <article class="article-card third" data-cat="life">
+      <span class="card-number">05</span>
+      <div class="card-cat cat-life">ライフスタイル</div>
+      <h3 class="card-title">「買って本当に良かった」厳選プロダクト2026春</h3>
+      <div class="card-meta">
+        <span class="card-date">2026.03.20</span>
+        <span class="card-readtime">読了 5分</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </article>
+
+    <!-- Row 3 -->
+    <article class="article-card half" data-cat="money">
+      <span class="card-number">06</span>
+      <div class="card-cat cat-money">資産運用</div>
+      <h3 class="card-title">インデックス投資 vs アクティブ投資——10年後の差を数字で見る</h3>
+      <p class="card-desc">長期データを基に、どちらが有利かを徹底検証。感情に左右されない投資判断のために。</p>
+      <div class="card-meta">
+        <span class="card-date">2026.03.15</span>
+        <span class="card-readtime">読了 10分</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </article>
+    <article class="article-card half" data-cat="biz">
+      <span class="card-number">07</span>
+      <div class="card-cat cat-biz">Business</div>
+      <h3 class="card-title">副業で月10万円を達成した人たちが共通してやっていること</h3>
+      <p class="card-desc">実際に副業成功者へのリサーチをもとに、再現性のある打ち手を整理しました。</p>
+      <div class="card-meta">
+        <span class="card-date">2026.03.10</span>
+        <span class="card-readtime">読了 9分</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- Feature banner -->
+<div class="feature-banner reveal">
+  <div class="fb-label">Editor's Note</div>
+  <p class="fb-text">
+    情報は溢れている。でも、<em>本当に役立つ情報</em>は<br>
+    驚くほど少ない。だから私は選ぶ。
+  </p>
+  <div class="fb-author">
+    <span>Recommend DB 編集長 &nbsp;—&nbsp; 大阪在住。ビジネス・投資・旅行を愛する。</span>
+  </div>
+</div>
+
+<!-- Categories showcase -->
+<section class="cats-showcase reveal">
+  <div class="section-header">
+    <div>
+      <div class="section-label">Categories</div>
+      <h2 class="section-title">5つのジャンル</h2>
+    </div>
+  </div>
+  <div class="cats-grid">
+    <div class="cat-card">
+      <div class="cat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#c8f064" stroke-width="1.5">
+          <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+        </svg>
+      </div>
+      <div class="cat-name">ビジネス</div>
+      <div class="cat-desc">思考法・スキルアップ・副業・キャリア戦略</div>
+      <div class="cat-count-badge">Articles →</div>
+    </div>
+    <div class="cat-card">
+      <div class="cat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#64b4f0" stroke-width="1.5">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+      </div>
+      <div class="cat-name">資産運用</div>
+      <div class="cat-desc">NISA・投資信託・不動産・節税・FP知識</div>
+      <div class="cat-count-badge">Articles →</div>
+    </div>
+    <div class="cat-card">
+      <div class="cat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#f0a064" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+      </div>
+      <div class="cat-name">旅行</div>
+      <div class="cat-desc">国内外の穴場・ホテル・旅の計画術・体験記</div>
+      <div class="cat-count-badge">Articles →</div>
+    </div>
+    <div class="cat-card">
+      <div class="cat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#c864f0" stroke-width="1.5">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <div class="cat-name">子育て</div>
+      <div class="cat-desc">教育・習い事・子育てと仕事の両立・お金の話</div>
+      <div class="cat-count-badge">Articles →</div>
+    </div>
+    <div class="cat-card">
+      <div class="cat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#64f0b4" stroke-width="1.5">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+      </div>
+      <div class="cat-name">ライフスタイル</div>
+      <div class="cat-desc">おすすめプロダクト・健康・読書・日々の発見</div>
+      <div class="cat-count-badge">Articles →</div>
+    </div>
+  </div>
+</section>
+
+<!-- About -->
+<section class="about-strip reveal" id="about">
+  <div class="about-left">
+    <div class="section-label">About</div>
+    <h2 class="about-title">
+      なぜ<br><em>Recommend DB</em><br>なのか。
+    </h2>
+    <p class="about-body">
+      インターネットには情報が溢れています。でも「本当に価値ある情報」を見つけるのは、むしろ難しくなっています。<br><br>
+      Recommend DBは、ビジネス・資産運用・旅行・子育てを中心に、実際に試して・調べて・考えた情報だけを届けるキュレーションメディアです。<br><br>
+      「誰かにとってのノイズ」ではなく、「誰かの人生を変える一情報」を届けることを目指しています。
+    </p>
+    <div class="about-stats">
+      <div>
+        <div class="stat-num">5</div>
+        <div class="stat-label">カテゴリ</div>
+      </div>
+      <div>
+        <div class="stat-num">NOTE</div>
+        <div class="stat-label">で発信中</div>
+      </div>
+      <div>
+        <div class="stat-num">無料</div>
+        <div class="stat-label">すべて無料公開</div>
+      </div>
+    </div>
+  </div>
+  <div class="about-right">
+    <div class="about-quote">
+      <p>「情報は量より質。本当に使える情報一つが、人生の選択を変えることがある。」</p>
+      <div class="about-quote-author">Recommend DB — 編集長</div>
+    </div>
+    <div class="about-creds">
+      <div class="cred-item"><div class="cred-dot"></div>ビジネス・投資の実践者として発信</div>
+      <div class="cred-item"><div class="cred-dot"></div>大阪在住。旅行・子育ての当事者目線</div>
+      <div class="cred-item"><div class="cred-dot"></div>NOTEにて継続的に記事を執筆中</div>
+      <div class="cred-item"><div class="cred-dot"></div>広告なし・忖度なし・本音だけ</div>
+    </div>
+  </div>
+</section>
+
+<!-- Note CTA -->
+<div class="note-cta reveal">
+  <div class="cta-left">
+    <div class="cta-label">Read on Note</div>
+    <div class="cta-title">記事はすべてNOTEで読めます</div>
+    <p class="cta-body">すべての記事は完全無料。フォローすると新着情報が届きます。</p>
+  </div>
+  <div class="cta-right">
+    <a href="https://note.com/" target="_blank" class="btn-note">
+      NOTEで読む
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M3 8h10M9 4l4 4-4 4"/>
+      </svg>
+    </a>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-logo">Recommend<span>.</span>DB</div>
+  <div class="footer-links">
+    <a href="#articles">記事</a>
+    <a href="#categories">カテゴリ</a>
+    <a href="#about">About</a>
+    <a href="https://note.com/" target="_blank">Note</a>
+  </div>
+  <div class="footer-copy">© 2026 Recommend DB. All rights reserved.</div>
+</footer>
+
+<script>
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+function animCursor() {
+  cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+  rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+  requestAnimationFrame(animCursor);
+}
+animCursor();
+
+// Scroll reveal
+const revealEls = document.querySelectorAll('.reveal');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+}, { threshold: 0.12 });
+revealEls.forEach(el => obs.observe(el));
+
+// Category filter
+const catBtns = document.querySelectorAll('.cat-btn');
+const cards = document.querySelectorAll('.article-card');
+catBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    catBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cat = btn.dataset.cat;
+    cards.forEach(card => {
+      const show = cat === 'all' || card.dataset.cat === cat;
+      card.style.display = show ? '' : 'none';
+    });
+  });
+});
+</script>
+</body>
+</html>
