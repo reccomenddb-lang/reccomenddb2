@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>プレミアムホテルカード戦略構築ダッシュボード</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        'premium-bg': '#fafaf9', /* Warm neutral background */
+        'premium-surface': '#ffffff',
+        'premium-dark': '#292524', /* Stone 800 */
+        'premium-gold': '#d97706', /* Amber 600 - elegant gold accent */
+        'premium-muted': '#78716c', /* Stone 500 */
+        'premium-border': '#e7e5e4'
+      },
+      fontFamily: {
+        sans: ['"Helvetica Neue"', 'Arial', '"Hiragino Kaku Gothic ProN"', '"Hiragino Sans"', 'Meiryo', 'sans-serif'],
+        serif: ['"Yu Mincho"', '"MS PMincho"', 'serif']
+      }
+    }
+  }
+}
+</script>
+<style>
+/* CSS Reset / Base Styling */
+body { background-color: #fafaf9; color: #292524; scroll-behavior: smooth; }
+
+/* Mandatory Chart Container Styling */
+.chart-container {
+  position: relative;
+  width: 100%;
+  max-width: 750px;
+  margin-left: auto;
+  margin-right: auto;
+  height: 350px;
+  max-height: 400px;
+}
+@media (min-width: 768px) {
+  .chart-container { height: 400px; }
+}
+
+/* Custom Range Slider Styling (No SVG) */
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  background: transparent;
+}
+input[type=range]:focus {
+  outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 28px;
+  width: 28px;
+  border-radius: 50%;
+  background: #d97706; /* premium-gold */
+  cursor: pointer;
+  margin-top: -10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  border: 3px solid #fff;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 8px;
+  cursor: pointer;
+  background: #d6d3d1;
+  border-radius: 4px;
+}
+input[type=range]:focus::-webkit-slider-runnable-track {
+  background: #c8c5c4;
+}
+
+/* Accordion Transition */
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+.accordion-content.active {
+  max-height: 500px; /* Arbitrary large number to allow content expansion */
+}
+</style>
+</head>
+<body class="font-sans antialiased text-premium-dark">
+
+<!-- Chosen Palette: Warm Premium Neutrals (Stone Backgrounds, Amber/Gold Accents, Charcoal Text) -->
+<!-- Application Structure Plan: The SPA is structured logically for a blogger researching a card comparison article. 
+     1. Strategic Foundation: Establishes the core narrative (Anti-miles, pro-hotel VIP).
+     2. Interactive Spend Simulator: Allows the user to verify the ROI of the Hilton card dynamically at different spend levels, proving the "2M JPY" sweet spot.
+     3. Competitor Analysis: Uses interactive tabs and a dual-axis chart to compare against Marriott and other premium cards, focusing on the lounge access barrier.
+     4. Blog Architecture: An interactive accordion outlining the final blog post structure, synthesizing the data into an actionable writing guide. 
+     This structure takes the user from raw strategy to data proof, to competitive context, and finally to content creation. -->
+<!-- Visualization & Content Choices: 
+     - Spend vs ROI -> Goal: Change/Simulate -> Viz: Range Slider + Dynamic Text -> Justification: Clearly demonstrates the threshold logic (Diamond status at 2M JPY).
+     - Competitor Details -> Goal: Organize -> Viz: Interactive Tabs -> Justification: Keeps the UI clean while allowing deep dives into specific competitors without scrolling.
+     - Annual Fee vs Lounge Hurdle -> Goal: Compare -> Viz: Chart.js Bar/Line Combo Chart -> Justification: Visually exposes the massive gap between Hilton (2M) and Marriott (4M) for lounge access. 
+     - Libraries: Chart.js used for the chart. Vanilla JS for tabs and sliders.
+     - NO SVG or Mermaid used. Unicode characters act as iconography. -->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+<nav class="bg-premium-surface border-b border-premium-border sticky top-0 z-50 shadow-sm">
+  <div class="max-w-5xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+    <div class="text-xl font-serif font-bold tracking-wider text-premium-dark">💳 Premium Card Strategy Desk</div>
+    <div class="flex space-x-6 text-sm font-medium text-premium-muted">
+      <a href="#strategy" class="hover:text-premium-gold transition-colors">1. 基本戦略</a>
+      <a href="#simulator" class="hover:text-premium-gold transition-colors">2. 決済シミュレーター</a>
+      <a href="#comparison" class="hover:text-premium-gold transition-colors">3. 競合比較</a>
+      <a href="#outline" class="hover:text-premium-gold transition-colors">4. 記事構成</a>
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-5xl mx-auto px-4 py-10 space-y-16">
+
+  <!-- Section 1: Strategy -->
+  <section id="strategy" class="scroll-mt-24">
+    <div class="mb-6">
+      <h2 class="text-3xl font-serif font-bold mb-3 border-b-2 border-premium-gold inline-block pb-1">戦略概要：ターゲティングと訴求軸</h2>
+      <p class="text-premium-muted leading-relaxed mt-4">
+        このセクションでは、本記事の執筆において最も重要な「誰に」「何を」伝えるかを定義します。一般カードとの比較は行わず、富裕層・アッパーミドル層に絞り込んだ戦略を確認してください。
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-premium-surface p-6 rounded-xl shadow-sm border border-premium-border hover:shadow-md transition-shadow">
+        <div class="text-4xl mb-4">🎯</div>
+        <h3 class="font-bold text-lg mb-2">ターゲットペルソナ</h3>
+        <p class="text-sm text-premium-muted leading-relaxed">
+          世帯年収800万以上、年間のカード決済額が200万円〜300万円の層。「マイルを貯めても希望の日程で特典航空券が取れない」というフラストレーションを抱えている旅行好き。
+        </p>
+      </div>
+      <div class="bg-premium-surface p-6 rounded-xl shadow-sm border border-premium-border hover:shadow-md transition-shadow">
+        <div class="text-4xl mb-4">✈️</div>
+        <h3 class="font-bold text-lg mb-2">アンチ・マイル論調</h3>
+        <p class="text-sm text-premium-muted leading-relaxed">
+          「マイルカードは使い道が限られる」という現実を突きつけます。航空券の空席待ちに疲弊するより、ヒルトンカードで「確実なホテルVIP待遇（朝食・ラウンジ・部屋UP）」を得るほうが圧倒的にQOLが上がると説きます。
+        </p>
+      </div>
+      <div class="bg-premium-surface p-6 rounded-xl shadow-sm border border-premium-border border-b-4 border-b-premium-gold hover:shadow-md transition-shadow">
+        <div class="text-4xl mb-4">👑</div>
+        <h3 class="font-bold text-lg mb-2">究極のキラーフレーズ</h3>
+        <p class="text-sm text-premium-muted leading-relaxed">
+          「年間200万円の決済で、エグゼクティブラウンジが無料で使える最上級ステータスが手に入る、唯一無二のカード」として、他社との圧倒的なハードルの低さを強調します。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2: Simulator -->
+  <section id="simulator" class="scroll-mt-24">
+    <div class="mb-6">
+      <h2 class="text-3xl font-serif font-bold mb-3 border-b-2 border-premium-gold inline-block pb-1">決済額別 ROIシミュレーター</h2>
+      <p class="text-premium-muted leading-relaxed mt-4">
+        読者が「自分は年間いくら決済するか」を想像し、ヒルトン・アメックス・プレミアムの価値を実感するためのシミュレーターです。スライダーを動かし、200万円（ダイヤモンド到達）と300万円（無料宿泊2泊目）の閾値で得られる価値の跳ね上がりを確認してください。
+      </p>
+    </div>
+
+    <div class="bg-premium-surface rounded-2xl shadow-sm border border-premium-border p-6 md:p-10">
+      <div class="mb-10">
+        <label for="spend-slider" class="block text-sm font-bold text-premium-muted mb-4 uppercase tracking-widest">
+          年間カード決済額 <span class="float-right text-3xl text-premium-gold font-serif" id="spend-display">200万円</span>
+        </label>
+        <input type="range" id="spend-slider" min="0" max="500" step="10" value="200" class="w-full mt-2">
+        <div class="flex justify-between text-xs text-premium-muted mt-3 px-2 font-medium">
+          <span>0万</span>
+          <span class="hidden sm:inline">100万</span>
+          <span class="text-premium-gold font-bold">200万 (ダイヤ)</span>
+          <span class="text-premium-gold font-bold">300万 (2泊目)</span>
+          <span class="hidden sm:inline">400万</span>
+          <span>500万</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Status Box -->
+        <div class="bg-stone-100 rounded-xl p-6 text-center flex flex-col justify-center items-center relative overflow-hidden transition-colors duration-300" id="status-box">
+          <div class="absolute top-0 left-0 w-full h-1 bg-premium-muted" id="status-bar"></div>
+          <div id="status-icon" class="text-6xl mb-4 transition-transform duration-300">💎</div>
+          <h4 id="status-name" class="text-2xl font-serif font-bold mb-2">ヒルトン・ダイヤモンド</h4>
+          <p id="status-desc" class="text-sm font-bold text-green-700 bg-green-100 px-4 py-1 rounded-full inline-block">
+            朝食無料 ＋ ラウンジアクセス ＋ スイートUP
+          </p>
+        </div>
+
+        <!-- ROI Box -->
+        <div class="space-y-4">
+          <h4 class="font-bold text-lg border-b border-premium-border pb-2">獲得見込み特典（金銭価値換算）</h4>
+          
+          <div class="flex justify-between items-center py-2">
+            <div class="flex items-center gap-2"><span class="text-xl">🛏️</span> <span class="text-sm font-medium">無料宿泊券</span></div>
+            <div class="text-right">
+              <div id="free-night-display" class="font-bold text-lg">1泊分</div>
+              <div class="text-xs text-premium-muted" id="free-night-value">(約50,000円相当)</div>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center py-2">
+            <div class="flex items-center gap-2"><span class="text-xl">💰</span> <span class="text-sm font-medium">獲得ポイント(3%換算)</span></div>
+            <div class="text-right">
+              <div id="points-display" class="font-bold text-lg">60,000 pt</div>
+              <div class="text-xs text-premium-muted" id="points-value">(約30,000円相当)</div>
+            </div>
+          </div>
+
+          <div class="mt-6 pt-4 border-t-2 border-premium-border border-dashed flex justify-between items-end">
+            <div>
+              <div class="text-xs text-premium-muted font-bold">年会費(66,000円)との</div>
+              <div class="text-sm font-bold">実質損益</div>
+            </div>
+            <div id="roi-display" class="text-3xl font-serif font-bold text-green-600">
+              +14,000円
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 3: Comparison -->
+  <section id="comparison" class="scroll-mt-24">
+    <div class="mb-6">
+      <h2 class="text-3xl font-serif font-bold mb-3 border-b-2 border-premium-gold inline-block pb-1">プレミアムカード競合比較</h2>
+      <p class="text-premium-muted leading-relaxed mt-4">
+        ターゲット層が比較検討するであろう「マリオット」「アメックスG」「三井住友Pt」との徹底比較です。タブで各カードの詳細を確認し、下部のグラフで「ラウンジアクセス」というVIP待遇を得るためのハードルの違い（ヒルトンの圧倒的優位性）を可視化します。
+      </p>
+    </div>
+
+    <!-- Interactive Tabs -->
+    <div class="bg-premium-surface rounded-2xl shadow-sm border border-premium-border overflow-hidden mb-12">
+      <div class="flex flex-wrap border-b border-premium-border bg-stone-50" id="tab-buttons">
+        <button class="flex-1 py-4 px-2 text-sm font-bold text-premium-gold border-b-2 border-premium-gold bg-white transition-colors" onclick="switchTab('hilton', this)">ヒルトン プレミアム</button>
+        <button class="flex-1 py-4 px-2 text-sm font-bold text-premium-muted border-b-2 border-transparent hover:bg-stone-100 transition-colors" onclick="switchTab('marriott', this)">マリオット プレミアム</button>
+        <button class="flex-1 py-4 px-2 text-sm font-bold text-premium-muted border-b-2 border-transparent hover:bg-stone-100 transition-colors" onclick="switchTab('amex', this)">アメックスG プリファード</button>
+        <button class="flex-1 py-4 px-2 text-sm font-bold text-premium-muted border-b-2 border-transparent hover:bg-stone-100 transition-colors" onclick="switchTab('smcc', this)">三井住友 Ptプリファード</button>
+      </div>
+      
+      <div id="tab-content" class="p-6 md:p-8 min-h-[300px]">
+        <!-- Content injected via JS -->
+      </div>
+    </div>
+
+    <!-- Chart.js Visualization -->
+    <div class="bg-premium-surface rounded-2xl shadow-sm border border-premium-border p-6 md:p-8">
+      <h3 class="text-center font-bold text-lg mb-2">年会費 vs ラウンジ付帯ステータス到達条件</h3>
+      <p class="text-center text-sm text-premium-muted mb-6">※マリオットの400万決済の壁に対し、ヒルトンは200万で到達可能であることを強調</p>
+      <div class="chart-container">
+        <canvas id="comparisonChart"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 4: Blog Outline -->
+  <section id="outline" class="scroll-mt-24 mb-20">
+    <div class="mb-6">
+      <h2 class="text-3xl font-serif font-bold mb-3 border-b-2 border-premium-gold inline-block pb-1">コンバージョン最適化 ブログ構成案</h2>
+      <p class="text-premium-muted leading-relaxed mt-4">
+        これまでのリサーチとデータに基づき、読者を「納得」から「申し込み（行動）」へ導くためのブログ記事の骨組みです。各ステップをクリックして、執筆すべき詳細な内容を展開してください。
+      </p>
+    </div>
+
+    <div class="space-y-4" id="accordion-container">
+      <!-- Accordion Item 1 -->
+      <div class="border border-premium-border rounded-xl bg-premium-surface overflow-hidden">
+        <button class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none" onclick="toggleAccordion(this)">
+          <span class="font-bold text-lg"><span class="text-premium-gold mr-2">Step 1.</span> 共感と問題提起（マイルの限界）</span>
+          <span class="text-2xl transition-transform duration-300 transform" aria-hidden="true">&#43;</span>
+        </button>
+        <div class="accordion-content bg-stone-50 border-t border-premium-border">
+          <div class="p-6 text-sm text-premium-muted leading-relaxed space-y-3">
+            <p><strong>執筆の狙い：</strong> 読者のペインポイント（痛み）に徹底的に寄り添い、マイル信仰を崩す。</p>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>「マイルを一生懸命貯めたのに、いざハワイに行こうとしたら特典航空券に全く空きがない...そんな経験はありませんか？」と問いかける。</li>
+              <li>マイルの価値は高いが「使えなければ意味がない」という事実を指摘。</li>
+              <li>飛行機はLCCや有償で割り切り、「滞在先のホテル体験（確実なVIP待遇）」に投資するパラダイムシフトを提案する。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accordion Item 2 -->
+      <div class="border border-premium-border rounded-xl bg-premium-surface overflow-hidden">
+        <button class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none" onclick="toggleAccordion(this)">
+          <span class="font-bold text-lg"><span class="text-premium-gold mr-2">Step 2.</span> 解決策の提示（ヒルトンの魔法）</span>
+          <span class="text-2xl transition-transform duration-300 transform" aria-hidden="true">&#43;</span>
+        </button>
+        <div class="accordion-content bg-stone-50 border-t border-premium-border">
+          <div class="p-6 text-sm text-premium-muted leading-relaxed space-y-3">
+            <p><strong>執筆の狙い：</strong> 年会費66,000円に対する心理的ハードルを、論理的な計算で破壊する。</p>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>ヒルトン・アメックス・プレミアムを「年間200万決済できる人専用のバグカード」として紹介する。</li>
+              <li>シミュレーターで示した通り、「無料宿泊券（約5万円）」＋「ポイント還元（約3万円）」で、すでに年会費の元が取れることを計算式で示す。</li>
+              <li>「つまり、実質無料で最上級のダイヤモンドステータスを維持している状態になる」と宣言する。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accordion Item 3 -->
+      <div class="border border-premium-border rounded-xl bg-premium-surface overflow-hidden">
+        <button class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none" onclick="toggleAccordion(this)">
+          <span class="font-bold text-lg"><span class="text-premium-gold mr-2">Step 3.</span> 決定打（マリオットとの比較）</span>
+          <span class="text-2xl transition-transform duration-300 transform" aria-hidden="true">&#43;</span>
+        </button>
+        <div class="accordion-content bg-stone-50 border-t border-premium-border">
+          <div class="p-6 text-sm text-premium-muted leading-relaxed space-y-3">
+            <p><strong>執筆の狙い：</strong> 競合カードへの目移りを防ぎ、「ヒルトン一択」の状況を作り出す。</p>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>比較表やグラフ（上記ダッシュボードの内容）を活用。</li>
+              <li>「マリオットで朝食・ラウンジを無料にする（プラチナ到達）には年間400万円の決済が必要。一般家庭には高すぎる壁」と指摘。</li>
+              <li>「ヒルトンならその半分の『200万円』でラウンジアクセス権が手に入る」というコスパの良さを最大の武器として解説する。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accordion Item 4 -->
+      <div class="border border-premium-border rounded-xl bg-premium-surface overflow-hidden">
+        <button class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none" onclick="toggleAccordion(this)">
+          <span class="font-bold text-lg"><span class="text-premium-gold mr-2">Step 4.</span> 感情喚起（ダイヤモンド体験の描写）</span>
+          <span class="text-2xl transition-transform duration-300 transform" aria-hidden="true">&#43;</span>
+        </button>
+        <div class="accordion-content bg-stone-50 border-t border-premium-border">
+          <div class="p-6 text-sm text-premium-muted leading-relaxed space-y-3">
+            <p><strong>執筆の狙い：</strong> ロジック（数字）だけでなく、エモーション（感情・憧れ）を刺激する。</p>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>エグゼクティブラウンジでの夕刻のカクテルタイム（アルコール・軽食無料）の贅沢な時間を描写する。</li>
+              <li>豪華な朝食ビュッフェが同伴者1名まで無料になることの節約効果と満足度の高さを伝える。</li>
+              <li>ROKU KYOTOやコンラッド東京など、具体的な高級ホテル名を出して「ここで無料宿泊券を使うと1泊10万円以上の価値になる」と夢を見させる。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accordion Item 5 -->
+      <div class="border border-premium-border rounded-xl bg-premium-surface overflow-hidden">
+        <button class="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none" onclick="toggleAccordion(this)">
+          <span class="font-bold text-lg"><span class="text-premium-gold mr-2">Step 5.</span> 行動喚起（CTAとリスクリバーサル）</span>
+          <span class="text-2xl transition-transform duration-300 transform" aria-hidden="true">&#43;</span>
+        </button>
+        <div class="accordion-content bg-stone-50 border-t border-premium-border">
+          <div class="p-6 text-sm text-premium-muted leading-relaxed space-y-3">
+            <p><strong>執筆の狙い：</strong> 読者の背中を押し、アフィリエイト（または紹介プログラム）のリンクを踏ませる。</p>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>現在開催中の「紹介入会キャンペーン」の獲得ポイント数を提示し、今入会するのが最もお得であることをアピールする。</li>
+              <li>リスクリバーサル：「もしライフスタイルに合わなければ、1年で解約してもOK。それでも入会ボーナスとステータス体験で十分元は取れる」と安心感を与える。</li>
+              <li>目立つボタンで紹介リンクへの導線を配置する。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// --- Data Storage ---
+const cardData = {
+  hilton: {
+    name: "ヒルトン・オナーズ アメックス・プレミアム",
+    fee: "66,000円",
+    baseStatus: "ヒルトン・ゴールド (朝食無料 / 部屋UP)",
+    hurdleStatus: "年間200万円決済で『ダイヤモンド』\n(ラウンジアクセス追加)",
+    freeNight: "カード更新で無条件1泊。\n年間300万円決済でさらに＋1泊。",
+    pointRate: "基本3% (ヒルトン利用時最大7%)",
+    insight: "【戦略的優位性】「200万円決済」という現実的なハードルで、他社なら数百万決済が必要な『ラウンジアクセス権』を獲得できる点が最大の武器。"
+  },
+  marriott: {
+    name: "マリオット・ボンヴォイ アメックス・プレミアム",
+    fee: "49,500円",
+    baseStatus: "マリオット・ゴールド (朝食なし / ラウンジなし)",
+    hurdleStatus: "年間400万円決済で『プラチナ』\n(朝食・ラウンジ追加)",
+    freeNight: "年間150万円決済＋更新で1泊 (5万ptまで)",
+    pointRate: "基本3% (マイル還元率最大1.25%)",
+    insight: "【比較時の弱点】マイル交換には強いが、ホテルでのVIP待遇（ラウンジ・朝食）を得るための「400万円決済」の壁が、一般家庭には高すぎる。"
+  },
+  amex: {
+    name: "アメックス・ゴールド・プリファード",
+    fee: "39,600円",
+    baseStatus: "特筆すべきホテル上級ステータスなし",
+    hurdleStatus: "決済額によるステータスアップなし",
+    freeNight: "年間200万円決済＋更新で\n「フリー・ステイ・ギフト」(国内対象ホテル1泊)",
+    pointRate: "基本1% (対象店舗でボーナスあり)",
+    insight: "【比較時の弱点】ダイニング特典などは優秀だが、特定のホテルチェーンでの「圧倒的な特別扱い（スイートUPやラウンジ）」を求める層のニーズは満たせない。"
+  },
+  smcc: {
+    name: "三井住友カード プラチナプリファード",
+    fee: "33,000円",
+    baseStatus: "ホテルステータス付与なし",
+    hurdleStatus: "100万円決済ごとに1万pt付与(最大4万pt)",
+    freeNight: "なし (貯めたポイントで予約サイトから充当)",
+    pointRate: "基本1% (特約店で最大10%還元)",
+    insight: "【比較時の弱点】完全に「ポイント高還元」に特化したカード。旅行時の「非日常感」「エモーショナルなVIP体験」を提供する要素がない。"
+  }
+};
+
+// --- Core Interaction Handling: Spend Simulator ---
+function initSimulator() {
+  const slider = document.getElementById('spend-slider');
+  const spendDisplay = document.getElementById('spend-display');
+  const statusBox = document.getElementById('status-box');
+  const statusBar = document.getElementById('status-bar');
+  const statusIcon = document.getElementById('status-icon');
+  const statusName = document.getElementById('status-name');
+  const statusDesc = document.getElementById('status-desc');
+  const freeNightDisplay = document.getElementById('free-night-display');
+  const freeNightValue = document.getElementById('free-night-value');
+  const pointsDisplay = document.getElementById('points-display');
+  const pointsValue = document.getElementById('points-value');
+  const roiDisplay = document.getElementById('roi-display');
+
+  function updateSimulator() {
+    const spend = parseInt(slider.value);
+    spendDisplay.textContent = `${spend}万円`;
+
+    // Logic Variables
+    let points = spend * 10000 * 0.03; // 3% return
+    let pValue = points * 0.5; // Assume 1pt = 0.5 JPY value
+    
+    let freeNights = 1; // Base renewal
+    if (spend >= 300) freeNights = 2; // Hit 3M hurdle
+    let fnValue = freeNights * 50000; // Assume 50k JPY per night
+
+    let status = 'Gold';
+    if (spend >= 200) status = 'Diamond'; // Hit 2M hurdle
+    let sValue = status === 'Diamond' ? 80000 : 30000; // Value of status
+
+    // Update DOM
+    pointsDisplay.textContent = `${points.toLocaleString()} pt`;
+    pointsValue.textContent = `(約${pValue.toLocaleString()}円相当)`;
+    
+    freeNightDisplay.textContent = `${freeNights}泊分`;
+    freeNightValue.textContent = `(約${fnValue.toLocaleString()}円相当)`;
+
+    if (status === 'Diamond') {
+      statusBox.className = "bg-stone-50 rounded-xl p-6 text-center flex flex-col justify-center items-center relative overflow-hidden transition-colors duration-300 border-2 border-premium-gold";
+      statusBar.className = "absolute top-0 left-0 w-full h-1 bg-premium-gold";
+      statusIcon.textContent = '💎';
+      statusName.textContent = 'ヒルトン・ダイヤモンド';
+      statusDesc.textContent = '朝食無料 ＋ ラウンジアクセス ＋ スイートUP';
+      statusDesc.className = 'text-sm font-bold text-green-700 bg-green-100 px-4 py-1 rounded-full inline-block';
+    } else {
+      statusBox.className = "bg-stone-100 rounded-xl p-6 text-center flex flex-col justify-center items-center relative overflow-hidden transition-colors duration-300";
+      statusBar.className = "absolute top-0 left-0 w-full h-1 bg-premium-muted";
+      statusIcon.textContent = '🥇';
+      statusName.textContent = 'ヒルトン・ゴールド';
+      statusDesc.textContent = '朝食無料 ＋ スタンダードルームUP';
+      statusDesc.className = 'text-sm font-medium text-premium-muted bg-stone-200 px-4 py-1 rounded-full inline-block';
+    }
+
+    let totalValue = pValue + fnValue + sValue;
+    let roi = totalValue - 66000;
+
+    if (roi >= 0) {
+      roiDisplay.textContent = `+${roi.toLocaleString()}円`;
+      roiDisplay.className = "text-3xl font-serif font-bold text-green-600";
+    } else {
+      roiDisplay.textContent = `${roi.toLocaleString()}円`;
+      roiDisplay.className = "text-3xl font-serif font-bold text-red-600";
+    }
+  }
+
+  slider.addEventListener('input', updateSimulator);
+  updateSimulator(); // Init on load
+}
+
+// --- Core Interaction Handling: Tabs ---
+function switchTab(cardKey, btnElement) {
+  // Reset buttons
+  const buttons = document.getElementById('tab-buttons').children;
+  for (let btn of buttons) {
+    btn.className = "flex-1 py-4 px-2 text-sm font-bold text-premium-muted border-b-2 border-transparent hover:bg-stone-100 transition-colors";
+  }
+  // Active button
+  btnElement.className = "flex-1 py-4 px-2 text-sm font-bold text-premium-gold border-b-2 border-premium-gold bg-white transition-colors";
+
+  // Update Content
+  const data = cardData[cardKey];
+  const contentDiv = document.getElementById('tab-content');
+  
+  contentDiv.innerHTML = `
+    <h4 class="text-2xl font-serif font-bold mb-6">${data.name}</h4>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="bg-stone-50 p-4 border border-premium-border rounded-lg">
+        <div class="text-xs text-premium-muted mb-1 font-bold">年会費</div>
+        <div class="text-lg font-bold">${data.fee}</div>
+      </div>
+      <div class="bg-stone-50 p-4 border border-premium-border rounded-lg">
+        <div class="text-xs text-premium-muted mb-1 font-bold">基本ステータス</div>
+        <div class="font-medium whitespace-pre-line">${data.baseStatus}</div>
+      </div>
+      <div class="bg-amber-50 p-4 border border-premium-gold rounded-lg shadow-sm">
+        <div class="text-xs text-premium-gold mb-1 font-bold">上位ステータス・ラウンジ条件</div>
+        <div class="font-bold whitespace-pre-line">${data.hurdleStatus}</div>
+      </div>
+      <div class="bg-stone-50 p-4 border border-premium-border rounded-lg">
+        <div class="text-xs text-premium-muted mb-1 font-bold">無料宿泊特典</div>
+        <div class="font-medium whitespace-pre-line">${data.freeNight}</div>
+      </div>
+    </div>
+    <div class="bg-premium-dark text-white p-4 rounded-lg">
+      <div class="text-xs text-premium-gold mb-1 font-bold">💡 ブログ執筆インサイト</div>
+      <div class="text-sm leading-relaxed">${data.insight}</div>
+    </div>
+  `;
+}
+
+// --- Core Interaction Handling: Accordion ---
+function toggleAccordion(btn) {
+  const content = btn.nextElementSibling;
+  const icon = btn.querySelector('span:last-child');
+  
+  // Close all other accordions (optional, but good for focus)
+  const allContents = document.querySelectorAll('.accordion-content');
+  const allIcons = document.querySelectorAll('button > span:last-child');
+  
+  allContents.forEach((c) => {
+    if (c !== content && c.classList.contains('active')) {
+      c.classList.remove('active');
+      c.style.maxHeight = null;
+    }
+  });
+  allIcons.forEach((i) => {
+    if (i !== icon) {
+      i.innerHTML = '&#43;'; // Plus
+      i.style.transform = 'rotate(0deg)';
+    }
+  });
+
+  // Toggle current
+  if (content.classList.contains('active')) {
+    content.classList.remove('active');
+    content.style.maxHeight = null;
+    icon.innerHTML = '&#43;';
+    icon.style.transform = 'rotate(0deg)';
+  } else {
+    content.classList.add('active');
+    content.style.maxHeight = content.scrollHeight + "px";
+    icon.innerHTML = '&minus;'; // Minus
+    icon.style.transform = 'rotate(180deg)';
+  }
+}
+
+// --- Chart.js Initialization ---
+function initChart() {
+  const ctx = document.getElementById('comparisonChart').getContext('2d');
+  
+  // Data aligning with the narrative
+  const labels = ['ヒルトン プレミアム', 'マリオット プレミアム', 'アメックスG プリファード', 'SMCC Pt プリファード'];
+  const annualFees = [66000, 49500, 39600, 33000];
+  // 0 means not applicable or no lounge benefit via spend
+  const loungeHurdles = [2000000, 4000000, 0, 0]; 
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: '年会費 (左軸: 円)',
+          data: annualFees,
+          backgroundColor: '#d6d3d1', // stone-300
+          borderColor: '#a8a29e', // stone-400
+          borderWidth: 1,
+          yAxisID: 'y',
+          order: 2
+        },
+        {
+          label: 'ラウンジ到達決済額 (右軸: 万円)',
+          data: loungeHurdles,
+          type: 'line',
+          backgroundColor: '#d97706', // premium-gold
+          borderColor: '#d97706',
+          borderWidth: 3,
+          pointBackgroundColor: '#fff',
+          pointBorderColor: '#d97706',
+          pointBorderWidth: 3,
+          pointRadius: 6,
+          pointHoverRadius: 8,
+          yAxisID: 'y1',
+          order: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: { font: { family: 'sans-serif', size: 12 } }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(41, 37, 36, 0.9)', // premium-dark
+          titleFont: { size: 14 },
+          bodyFont: { size: 13 },
+          callbacks: {
+            label: function(context) {
+              let label = context.dataset.label || '';
+              if (label) { label += ': '; }
+              if (context.datasetIndex === 0) {
+                label += context.raw.toLocaleString() + ' 円';
+              } else {
+                if (context.raw === 0) {
+                  label += '該当なし（決済での付帯不可）';
+                } else {
+                  label += (context.raw / 10000).toLocaleString() + ' 万円';
+                }
+              }
+              return label;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          type: 'linear',
+          display: true,
+          position: 'left',
+          title: { display: true, text: '年会費 (円)', color: '#78716c' },
+          grid: { color: '#f5f5f4' },
+          min: 0,
+          max: 80000
+        },
+        y1: {
+          type: 'linear',
+          display: true,
+          position: 'right',
+          title: { display: true, text: 'ラウンジ到達決済額 (万円)', color: '#d97706' },
+          grid: { drawOnChartArea: false }, // only draw grid lines for one axis
+          min: 0,
+          max: 5000000,
+          ticks: {
+            callback: function(value) {
+              return value / 10000 + '万';
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+// --- Initialize App ---
+document.addEventListener('DOMContentLoaded', () => {
+  initSimulator();
+  // Init tabs with first element
+  switchTab('hilton', document.getElementById('tab-buttons').firstElementChild);
+  initChart();
+  
+  // Open the first accordion by default
+  const firstAccordion = document.querySelector('#accordion-container button');
+  if(firstAccordion) toggleAccordion(firstAccordion);
+});
+</script>
+</body>
+</html>
